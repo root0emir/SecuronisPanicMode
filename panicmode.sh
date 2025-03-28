@@ -31,6 +31,41 @@ check_vpn_status() {
     fi
 }
 
+# DNSCrypt kontrolü
+check_dnscrypt() {
+    if pgrep dnscrypt >/dev/null 2>&1; then
+        echo "DNSCrypt is running."
+        return 10
+    else
+        echo "DNSCrypt is not running."
+        return 0
+    fi
+}
+
+
+check_privacy_score() {
+    score=0
+
+    # Live Mode
+    if [ "$1" == "live" ]; then
+        score=$((score + 20))
+    fi
+
+    # VPN
+    check_vpn_status
+    score=$((score + $?))
+
+    # Tor
+    check_tor_status
+    score=$((score + $?))
+
+    # DNSCrypt
+    check_dnscrypt
+    score=$((score + $?))
+
+    echo "Your privacy score is: $score"
+}
+
 # Sistem durumu bilgilerini gösterme
 system_status() {
     echo "Uptime: $(uptime -p)"
@@ -361,7 +396,7 @@ while true; do
     case $choice in
         1) check_ip ;;
         2) check_ip_location ;;
-        3) check_privacy_status ;;
+        3) check_privacy_score ;;
         4) check_tor_status ;;
         5) check_vpn_status ;;
         6) check_all_ip_info ;;
