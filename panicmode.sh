@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# Developer: root0emir
-# Securonis Linux Project Panic Mode Script
-# Panic Mode CLI
-# Version: 1.2
-
-# Tor durumunu kontrol etme (checktorproject kullanarak)
+# Tor durumunu kontrol etme 
 check_tor_status() {
     tor_check=$(curl -s https://check.torproject.org/api/ip)
     if echo "$tor_check" | grep -q '"IsTor":true'; then
@@ -143,9 +138,54 @@ physical_security() {
 
     # Eğer TPM varsa, TPM güvenliği etkinleştir
     echo "Enabling TPM security (if available)..."
+    # TPM ile ilgili güvenlik komutları burada eklenebilir
+
+    # Kernel güvenlik önlemleri
+    echo "Setting kernel security parameters..."
+    sudo sysctl -w kernel.randomize_va_space=2
+    sudo sysctl -w kernel.kptr_restrict=2
+    sudo sysctl -w kernel.dmesg_restrict=1
+    sudo sysctl -w fs.protected_hardlinks=1
+    sudo sysctl -w fs.protected_symlinks=1
 
     # Donanım güvenliği
+    echo "Setting hardware security parameters..."
+    sudo modprobe -r usb_storage
+    echo "blacklist usb_storage" | sudo tee /etc/modprobe.d/blacklist-usb-storage.conf
+
+    # TMP güvenliği
+    echo "Setting tmp security parameters..."
+    sudo mount -o remount,nodev,noexec,nosuid /tmp
+
     echo "Physical security measures are now in place."
+}
+
+# Fiziksel güvenliği devre dışı bırakma
+disable_physical_security() {
+    echo "Disabling physical security measures..."
+
+    # USB portlarını etkinleştir
+    echo "Enabling USB ports..."
+    sudo rm /etc/modprobe.d/blacklist-usb.conf
+    sudo modprobe usb_storage
+
+    # Kernel güvenlik önlemlerini eski haline getirme
+    echo "Reverting kernel security parameters..."
+    sudo sysctl -w kernel.randomize_va_space=1
+    sudo sysctl -w kernel.kptr_restrict=0
+    sudo sysctl -w kernel.dmesg_restrict=0
+    sudo sysctl -w fs.protected_hardlinks=0
+    sudo sysctl -w fs.protected_symlinks=0
+
+    # Donanım güvenliğini eski haline getirme
+    echo "Reverting hardware security parameters..."
+    sudo rm /etc/modprobe.d/blacklist-usb-storage.conf
+
+    # TMP güvenliğini eski haline getirme
+    echo "Reverting tmp security parameters..."
+    sudo mount -o remount /tmp
+
+    echo "Physical security measures have been disabled."
 }
 
 # Çekirdek güvenlik durumunu kontrol etme
@@ -310,8 +350,9 @@ while true; do
     echo "28) Deactivate Paranoia Mode"
     echo "--------------------"
     echo "29) Activate Physical Security"
+    echo "30) Disable Physical Security"
     echo "--------------------"
-    echo "30) Nuke The System"
+    echo "31) Nuke The System"
     echo "--------------------"
     echo "0) Exit"
     echo "====================================="
@@ -347,9 +388,10 @@ while true; do
         27) activate_paranoia_mode ;;
         28) deactivate_paranoia_mode ;;
         29) physical_security ;;
-        30) nuke_the_system ;;
+        30) disable_physical_security ;;
+        31) nuke_the_system ;;
         0) exit 0 ;;
         *) echo "Invalid option. Try again." ;;
     esac
     read -p "Press Enter to continue..." dummy
-done
+done 
