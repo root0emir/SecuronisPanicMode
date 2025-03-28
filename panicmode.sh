@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Author: root0emir
-# Securonis GNU/Linux Panic Mode Script 
-# Version : 1.1
+# Developer: root0emir
+# Securonis Linux Project Panic Mode Script
+# Panic Mode CLI
+# Version: 1.2
 
-# Tor durumunu kontrol etme 
+# Tor durumunu kontrol etme (checktorproject kullanarak)
 check_tor_status() {
     tor_check=$(curl -s https://check.torproject.org/api/ip)
     if echo "$tor_check" | grep -q '"IsTor":true'; then
@@ -100,7 +101,7 @@ security_scan() {
 cleaning_traces() {
     echo "Cleaning traces..."
     history -c && history -w
-    rm -rf ~/.cache ~/.bash_history ~/.zsh_history ~/.mozilla/firefox/*.default-release/places.sqlite ~/.config/google-chrome/Default/History
+    rm -rf ~/.cache ~/.bash_history ~/.zsh_history
     sudo rm -rf /tmp/* /var/tmp/* /var/log/*
     echo "Traces cleaned."
 }
@@ -142,9 +143,8 @@ physical_security() {
 
     # Eğer TPM varsa, TPM güvenliği etkinleştir
     echo "Enabling TPM security (if available)..."
-    # TPM ile ilgili güvenlik komutları burada eklenebilir
 
-    # Donanım güvenliği: Diğer fiziksel önlemler eklenebilir
+    # Donanım güvenliği
     echo "Physical security measures are now in place."
 }
 
@@ -247,6 +247,12 @@ check_ip_location() {
     curl -s ipinfo.io
 }
 
+# MITM saldırı kontrolü ve savunma
+mitm_attack_check_defense() {
+    echo "Running MITM attack check and defense..."
+    sudo /usr/local/bin/antimitm
+}
+
 # ASCII giriş menüsü
 while true; do
     clear
@@ -279,32 +285,33 @@ while true; do
     echo "7) DNS Leak Test"
     echo "8) IP Leak Test"
     echo "-------------------"
-    echo "9) Change DNS"
-    echo "10) Spoof MAC Address"
-    echo "11) Delete Network Traces"
-    echo "12) Monitor Network Traffic"
+    echo "9) MITM Attack Check & Defense"
+    echo "10) Change DNS"
+    echo "11) Spoof MAC Address"
+    echo "12) Delete Network Traces"
+    echo "13) Monitor Network Traffic"
     echo "-------------------"
-    echo "13) Security Scan (ClamAV)"
-    echo "14) Cleaning System Traces"
-    echo "15) Wipe RAM"
-    echo "16) Wipe Disk"
-    echo "17) Wipe Free Space"
-    echo "18) Change Hostname"
-    echo "19) Check Kernel Security Status"
-    echo "20) Check Disk Encryption"
-    echo "21) Check Security Updates"
-    echo "22) Set Hardened Firewall Rules"
-    echo "23) Secure File Delete"
+    echo "14) Security Scan (ClamAV)"
+    echo "15) Cleaning System Traces"
+    echo "16) Wipe RAM"
+    echo "17) Wipe Disk"
+    echo "18) Wipe Free Space"
+    echo "19) Change Hostname"
+    echo "20) Check Kernel Security Status"
+    echo "21) Check Disk Encryption"
+    echo "22) Check Security Updates"
+    echo "23) Set Hardened Firewall Rules"
+    echo "24) Secure File Delete"
     echo "-------------------"
-    echo "24) SSL/TLS Fingerprint Verification"
-    echo "25) Clean Browser Traces"
+    echo "25) SSL/TLS Fingerprint Verification"
+    echo "26) Clean Browser Traces"
     echo "-------------------"
-    echo "26) Activate Paranoia Mode"
-    echo "27) Deactivate Paranoia Mode"
+    echo "27) Activate Paranoia Mode"
+    echo "28) Deactivate Paranoia Mode"
     echo "--------------------"
-    echo "28) Activate Physical Security"
+    echo "29) Activate Physical Security"
     echo "--------------------"
-    echo "29) Nuke The System"
+    echo "30) Nuke The System"
     echo "--------------------"
     echo "0) Exit"
     echo "====================================="
@@ -319,27 +326,28 @@ while true; do
         6) check_all_ip_info ;;
         7) dns_leak_test ;;
         8) ip_leak_test ;;
-        9) change_dns ;;
-        10) spoof_mac ;;
-        11) delete_network_traces ;;
-        12) monitor_network_traffic ;;
-        13) security_scan ;;
-        14) cleaning_traces ;;
-        15) wipe_ram ;;
-        16) wipe_disk ;;
-        17) wipe_free_space ;;
-        18) change_hostname ;;
-        19) check_kernel_security_status ;;
-        20) check_disk_encryption ;;
-        21) check_security_updates ;;
-        22) harden_firewall ;;
-        23) secure_delete ;;
-        24) ssl_tls_fingerprint_verification ;;
-        25) delete_browser_traces ;;
-        26) activate_paranoia_mode ;;
-        27) deactivate_paranoia_mode ;;
-        28) physical_security ;;
-        29) nuke_the_system ;;
+        9) mitm_attack_check_defense ;;
+        10) change_dns ;;
+        11) spoof_mac ;;
+        12) delete_network_traces ;;
+        13) monitor_network_traffic ;;
+        14) security_scan ;;
+        15) cleaning_traces ;;
+        16) wipe_ram ;;
+        17) wipe_disk ;;
+        18) wipe_free_space ;;
+        19) change_hostname ;;
+        20) check_kernel_security_status ;;
+        21) check_disk_encryption ;;
+        22) check_security_updates ;;
+        23) harden_firewall ;;
+        24) secure_delete ;;
+        25) ssl_tls_fingerprint_verification ;;
+        26) delete_browser_traces ;;
+        27) activate_paranoia_mode ;;
+        28) deactivate_paranoia_mode ;;
+        29) physical_security ;;
+        30) nuke_the_system ;;
         0) exit 0 ;;
         *) echo "Invalid option. Try again." ;;
     esac
