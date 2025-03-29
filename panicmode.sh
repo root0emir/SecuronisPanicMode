@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Tor durumunu kontrol etme 
+# Tor durumunu kontrol etme (checktorproject kullanarak)
 check_tor_status() {
     tor_check=$(curl -s https://check.torproject.org/api/ip)
     if echo "$tor_check" | grep -q '"IsTor":true'; then
@@ -226,7 +226,31 @@ disable_physical_security() {
 # Çekirdek güvenlik durumunu kontrol etme
 check_kernel_security_status() {
     echo "Checking kernel security status..."
-    sudo /usr/local/bin/kernelcheck
+    
+#!/bin/bash
+
+# Function to check if Paranoia Mode is enabled
+is_paranoia_mode_enabled() {
+    if [ -f /etc/sysctl.d/99-paranoia-mode.conf ] && iptables -L INPUT | grep -q "DROP"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Check if /etc/sysctl.d/99-securonis-hardening.conf exists
+if [ -f /etc/sysctl.d/99-securonis-hardening.conf ]; then
+    echo "[+]Kernel Settings are done. Your system is very secure against Network and System attacks."
+else
+    echo "[!]Kernel settings are not applied. Your system may be vulnerable to Network and System attacks."
+    echo "To make your system and network more secure, select System Hardening Settings from the desktop or run the following command in the terminal:"
+    echo "systemhardening"
+fi
+
+# Check if Paranoia Mode is enabled
+if is_paranoia_mode_enabled; then
+    echo "You are in Paranoia Mode. Your system is at the highest security level."
+fi
 }
 
 # Paranoia modunu etkinleştirme
